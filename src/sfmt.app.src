@@ -1,0 +1,11 @@
+{application, sfmt,
+ [
+  {description, "String interpolation"},
+  {vsn, git},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.

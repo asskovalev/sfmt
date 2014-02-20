@@ -1,0 +1,44 @@
+items <- item* `
+  {FmtString, Args} = lists:mapfoldl(
+    fun ({Fmt, Arg}, Acc) -> {Fmt, [Arg|Acc]};
+        (Str       , Acc) -> {Str, Acc}
+    end, [], Node),
+  {binary_to_list(iolist_to_binary(FmtString)), lists:reverse(Args)}
+`;
+
+item <- string / substitution;
+
+substitution <- 
+  "$" var:variable /
+  "$" fmt:format "{" var:expr "}" /
+  "${" var:expr "}" `
+  {pl(fmt, Node, "~p"), pl(var, Node)}
+`;
+
+   
+
+
+
+
+expr <- nonexpr* ` iolist_to_binary(Node) `;
+
+variable <- [A-Z] (nonspace*) ` iolist_to_binary(Node) `;
+   
+format <- "~" (nonspace+) ` iolist_to_binary(Node) `;
+
+string <- [^$]+ ` iolist_to_binary(Node) `;
+   
+nonspace <- [^ \n\t\r\{\}$] ~;
+nonexpr <- [^\{\}$] ~;
+
+
+`
+pl(Name, PL)          -> proplists:get_value(Name, PL).
+pl(Name, PL, Default) -> proplists:get_value(Name, PL, Default).
+
+`
+
+
+% mapfoldl(Fun, Acc0, List1) -> {List2, Acc1}
+% Types:
+% Fun = fun((A, AccIn) -> {B, AccOut})
